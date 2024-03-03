@@ -1,0 +1,1 @@
+{"frames":[],"message":"Error in colorFactor(topo.colors(16), vector_extract$building$polygons$type) : \n  could not find function \"colorFactor\"\n"}

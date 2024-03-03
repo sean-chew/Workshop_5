@@ -1,0 +1,10 @@
+"0","NYC_Tile <- get_static_tiles(
+    location = ny_tracts,
+    zoom = 9,
+    style_id = ""light-v9"",
+    username = ""mapbox""
+)
+"
+"2","Attribution is required if using Mapbox tiles on a map.
+Add the text '(c) Mapbox, (c) OpenStreetMap' to your map for proper attribution.
+"

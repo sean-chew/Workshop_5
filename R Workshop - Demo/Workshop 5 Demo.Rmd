@@ -1,0 +1,159 @@
+---
+title: "Demo of Mapbox"
+author: "Sean"
+date: "2023-03-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+### Set Environment ------------------------------------------------------------
+# Clear the environment
+rm(list=ls())
+gc()
+# So the code will compile warnings as per usual
+options(warn = 0)
+# Turn off scientific notation
+options(scipen = 999)
+### Load Packages --------------------------------------------------------------
+
+if(!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse,magrittr,janitor,tidycensus,data.table, ggplot2, scales,skimr,
+openxlsx, ggspatial, rgeos, data.table,RColorBrewer, collapse, sf, glue, XML, tm, here, 
+repurrrsive, tmap,tidygraph, nabor,igraph,viridis,hrbrthemes,RSocrata,soql,Kendall, broom,
+knitr,googleway,ggmap,mapsapi,osmdata,tigris,units,mapboxapi,leaflet)
+### Begin Code -----------------------------------------------------------------
+# mapboxapi, leaflet, tigris, sf, tmap tidyberse, magrittr 
+```
+
+
+```{r}
+mapbox_token <- Sys.getenv("MAPBOX_PUBLIC_TOKEN")
+
+ny_tracts <- tracts("NY",c("Kings","Bronx","Queens","Richmond","New York", cb =TRUE))
+
+```
+
+```{r}
+NYC_Income <- get_acs(
+    geography = "tract",
+    variables = "B19013_001", # Income
+    state = "NY",
+    county = c("Kings","Bronx","Queens","Richmond","New York"),
+    geometry = TRUE,
+    year = 2019
+)
+
+NYC_Income_cleaned <- NYC_Income %>% 
+    drop_na()
+
+NYC_Tile <- get_static_tiles(
+    location = ny_tracts,
+    zoom = 9,
+    style_id = "light-v9",
+    username = "mapbox"
+)
+
+```
+```{r}
+
+tm_shape(NYC_Tile) +
+    tm_rgb() +
+    tm_shape(NYC_Income_cleaned) +
+    tm_polygons(col = "estimate",
+                alpha = 0.5,
+                palette = "viridis",
+                title = "Median household income\n2015-2019 ACS",
+                lwd = 0.3) +
+    tm_layout(legend.outside = TRUE) +
+    tm_credits("Basemap credit to mapbox + openstreetmap", position = c("RIGHT","BOTTOM"))
+
+
+
+
+```
+
+```{r}
+vector_extract <- get_vector_tiles(
+    tileset_id = "mapbox.mapbox-streets-v8",
+    location = c(-73.99405, 40.72033),
+    zoom = 15
+)
+
+names(vector_extract)
+
+```
+
+
+```{r}
+tmap_mode("view")
+
+
+```
+
+
+```{r}
+tm_shape(vector_extract$landuse$polygons) +
+    tm_polygons(col = "type",alpha = 0.4)
+
+
+```
+
+
+```{r}
+tm_shape(vector_extract$building$polygons) + 
+    tm_polygons(col = "type",alpha = 0.4)
+    
+
+
+```
+```{r}
+#Leaflet package
+
+factpal <- colorFactor(topo.colors(16), vector_extract$building$polygons$type)
+
+leaflet() %>% 
+    addMapboxTiles(style_id = "dark-v11",
+                   username = "mapbox") %>% 
+    setView(lng = -73.99405,
+            lat = 40.72033,
+            zoom = 16) %>% 
+    addPolygons(data = vector_extract$building$polygons,
+                popup = vector_extract$building$polygons$type,
+                color = "white",
+                fillColor = ~factpal(type),
+                weight = 2)
+
+```
+
+```{r}
+# Isochrones (service area analysis)
+
+isochrones <- mb_isochrone("Chinatown, NYC",
+                           time = c(4,8,12),
+                           profile = "cycling")
+
+library(mapdeck)
+
+mapdeck(style = mapdeck_style("dark")) %>% 
+    add_polygon(data = isochrones,
+                fill_colour = "time",
+                fill_opacity = 0.5,
+                legend = TRUE)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

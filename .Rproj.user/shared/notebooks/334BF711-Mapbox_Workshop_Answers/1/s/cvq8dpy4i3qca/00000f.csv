@@ -1,0 +1,2 @@
+"0","tm_shape(vector_extract$building$polygons) + "
+"0","  tm_polygons(col = ""type"", alpha = .4) "

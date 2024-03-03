@@ -1,0 +1,10 @@
+"0","mapdeck(style = mapdeck_style(""dark"")) %>% 
+    add_polygon(data = isochrones,
+                fill_colour = ""time"",
+                fill_opacity = 0.5,
+                legend = TRUE,
+                pitch = 0)
+"
+"2","Error in add_polygon(., data = isochrones, fill_colour = ""time"", fill_opacity = 0.5,  : 
+  unused argument (pitch = 0)
+"
